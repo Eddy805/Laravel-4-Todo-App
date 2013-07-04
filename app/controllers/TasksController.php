@@ -1,6 +1,7 @@
 <?php
 
-class TasksController extends BaseController {
+class TasksController extends BaseController
+{
 
     /**
      * Display a listing of the resource.
@@ -9,17 +10,13 @@ class TasksController extends BaseController {
      */
     public function index()
     {
-        //
-    }
+        $tasks = Task::orderBy('completed', 'asc')->orderBy('created_at', 'desc')->where(function($query){
+            if (Input::has('filter')) {
+                $query->where('completed', '=', Input::get('filter') == 'active' ? 0 : 1);
+            }
+        })->get();
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return Response
-     */
-    public function create()
-    {
-        //
+        return View::make('tasks.index', compact('tasks'));
     }
 
     /**
@@ -29,29 +26,17 @@ class TasksController extends BaseController {
      */
     public function store()
     {
-        //
-    }
+        $validation = Validator::make(Input::all(), [
+            'title' => ['required']
+        ]);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function show($id)
-    {
-        //
-    }
+        if ($validation->passes()) {
+            $task = new Task(Input::all());
+            $task->save();
+            return Redirect::route('tasks.index');
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return Response
-     */
-    public function edit($id)
-    {
-        //
+        return Redirect::back()->withInput()->withErrors($validation);
     }
 
     /**
@@ -62,7 +47,27 @@ class TasksController extends BaseController {
      */
     public function update($id)
     {
-        //
+        $task = Task::find($id);
+
+        if ($task == null)
+            App::abort(404);
+
+        // update completed field
+        if (Input::has('completed')) {
+            $task->completed = intval(Input::get('completed')) == 1 ? true : false;
+        }
+
+        // update title field
+        if (Input::has('title')) {
+            $title = Input::get('title');
+            if (empty($title) || trim($title) == '')
+                return Response::make('title required', 400);
+            $task->title = $title;
+        }
+
+        if ($task->save())
+            return Response::make('updated');
+        return Response::make('server error', 500);
     }
 
     /**
@@ -73,7 +78,8 @@ class TasksController extends BaseController {
      */
     public function destroy($id)
     {
-        //
+        Task::destroy($id);
+        return Response::make('removed');
     }
 
 }
