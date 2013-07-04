@@ -11,9 +11,10 @@ class TasksController extends BaseController
     public function index()
     {
         $tasks = Task::orderBy('completed', 'asc')->orderBy('created_at', 'desc')->where(function($query){
-            if (Input::has('filter')) {
+            if (Input::has('filter'))
                 $query->where('completed', '=', Input::get('filter') == 'active' ? 0 : 1);
-            }
+
+            $query->where('removed', '=', false);
         })->get();
 
         return View::make('tasks.index', compact('tasks'));
@@ -78,8 +79,11 @@ class TasksController extends BaseController
      */
     public function destroy($id)
     {
-        Task::destroy($id);
-        return Response::make('removed');
+        $task = Task::find($id);
+        $task->removed = true;
+        if ($task->save())
+            return Response::make('removed');
+        return Response::make('server error', 500);
     }
 
 }
