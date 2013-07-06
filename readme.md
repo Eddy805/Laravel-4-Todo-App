@@ -1,8 +1,8 @@
-# Laravel4 Todo App
+# Laravel 4 Todo App
 
 [https://github.com/tlikai/Laravel-4-Todo-App](https://github.com/tlikai/Laravel-4-Todo-App)
 
-![http://tlikai.github.io/Laravel-4-Todo-App/images/screenshot.png](screenshot)
+![https://github.com/tlikai/Laravel-4-Todo-App/raw/master/public/images/screenshot.png](screenshot)
 
 ## Todo
 
